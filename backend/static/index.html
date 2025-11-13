@@ -5,53 +5,201 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 火箭发射数据可视化系统</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
             color: white;
+
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+        * {
+        color: inherit !important;
+    }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            z-index: 1000;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .sidebar-logo {
+            font-size: 1.2rem;
+        }
+
+        .toggle-btn {
+            background: rgba(59, 130, 246, 0.2);
+            border: none;
+            color: #60a5fa;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(59, 130, 246, 0.4);
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 20px 10px;
+        }
+
+        .menu-item {
+            margin-bottom: 5px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 15px 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .menu-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+        }
+
+        .menu-link.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .menu-icon {
+            font-size: 1.3rem;
+            min-width: 30px;
+        }
+
+        .menu-text {
+            margin-left: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .menu-text {
+            display: none;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            transition: all 0.3s;
             min-height: 100vh;
         }
-        .header {
-            text-align: center;
-            padding: 40px 20px;
-            background: rgba(30, 41, 59, 0.6);
-            backdrop-filter: blur(10px);
-            margin-bottom: 30px;
+
+        .main-content.expanded {
+            margin-left: 70px;
         }
-        .header h1 {
-            font-size: 3rem;
+
+        /* 顶部栏 */
+        .top-bar {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
             background: linear-gradient(to right, #60a5fa, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
+
+        .top-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-stat-item {
+            text-align: center;
+        }
+
+        .top-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        .top-stat-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        /* 卡片样式 */
         .card {
             background: rgba(30, 41, 59, 0.7);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(148, 163, 184, 0.2);
             border-radius: 20px;
             margin-bottom: 30px;
+            transition: all 0.3s;
         }
+
+        .card:hover {
+            box-shadow: 0 10px 40px rgba(59, 130, 246, 0.2);
+            transform: translateY(-5px);
+        }
+
         .stat-card {
             background: linear-gradient(135deg, #3b82f6, #1e40af);
             padding: 25px;
             border-radius: 15px;
             text-align: center;
             box-shadow: 0 5px 20px rgba(59, 130, 246, 0.3);
+            height: 100%;
         }
+
         .stat-card h3 { font-size: 0.9rem; opacity: 0.9; margin-bottom: 10px; }
         .stat-card .value { font-size: 2.5rem; font-weight: bold; }
-        .nav-tabs .nav-link {
-            background: rgba(55, 65, 81, 0.6);
-            color: white;
-            border: none;
-            margin: 0 10px;
-            padding: 15px 40px;
-            border-radius: 10px;
-        }
-        .nav-tabs .nav-link.active {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
-        }
+
+        /* 地图样式 */
         .map-container {
             background: #000;
             border-radius: 15px;
@@ -59,45 +207,7 @@
             position: relative;
             height: 600px;
         }
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #f3f4f6;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .launch-item {
-            background: rgba(55, 65, 81, 0.6);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: all 0.3s;
-        }
-        .launch-item:hover {
-            background: rgba(75, 85, 99, 0.8);
-            transform: translateX(5px);
-        }
-        .badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
-        /* 地图标记样式 */
         .marker {
             position: absolute;
             width: 12px;
@@ -109,12 +219,19 @@
             transform: translate(-50%, -50%);
             box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
             animation: pulse 2s infinite;
+            transition: all 0.3s;
         }
+
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 1); }
+            50% { box-shadow: 0 0 20px rgba(59, 130, 246, 1), 0 0 30px rgba(59, 130, 246, 0.5); }
         }
-        .marker:hover { transform: translate(-50%, -50%) scale(1.5); }
+
+        .marker:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            z-index: 100;
+        }
+
         .marker.usa { background: #3b82f6; }
         .marker.china { background: #ef4444; }
         .marker.russia { background: #a855f7; }
@@ -122,6 +239,181 @@
         .marker.japan { background: #f59e0b; }
         .marker.india { background: #ec4899; }
         .marker.other { background: #8b5cf6; }
+
+        /* 加载动画 */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 徽章样式 */
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .badge-warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+
+        /* 数据表格 */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .data-table thead th {
+            background: rgba(59, 130, 246, 0.2);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border: none;
+        }
+
+        .data-table tbody tr {
+            background: rgba(55, 65, 81, 0.4);
+            transition: all 0.3s;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(75, 85, 99, 0.6);
+            transform: translateX(5px);
+        }
+
+        .data-table tbody td {
+            padding: 15px;
+            border: none;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 20px;
+            background: rgba(55, 65, 81, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .menu-text {
+                display: none;
+            }
+        }
+
+        /* 时间线样式 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: -30px;
+            width: 2px;
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            background: #3b82f6;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .timeline-content {
+            background: rgba(55, 65, 81, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .comparison-card {
+            background: rgba(55, 65, 81, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comparison-bar {
+            height: 30px;
+            background: rgba(55, 65, 81, 0.6);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .comparison-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            transition: width 0.5s ease;
+        }
     </style>
 </head>
 <body>
@@ -130,83 +422,174 @@
         <div v-if="loading" class="loading">
             <div class="text-center">
                 <div class="spinner"></div>
-                <p class="mt-3">正在加载 4000+ 条数据...</p>
+                <p class="mt-3">正在加载 {{ launchData.length || '4000+' }} 条数据...</p>
             </div>
         </div>
 
-        <!-- 头部 -->
-        <div class="header">
-            <h1>🚀 全球火箭发射数据可视化系统</h1>
-            <p class="lead">Global Rocket Launch Data Visualization</p>
-            <p v-if="launchData.length > 0" class="text-info">
-                已加载 {{ launchData.length }} 条发射记录
-            </p>
-        </div>
+        <!-- 侧边栏 -->
+        <div class="sidebar" :class="{collapsed: sidebarCollapsed}">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    {{ sidebarCollapsed ? '' : ' 火箭数据' }}
+                </div>
+                <button class="toggle-btn" @click="sidebarCollapsed = !sidebarCollapsed">
+                    <i :class="sidebarCollapsed ? 'bi bi-arrow-right' : 'bi bi-arrow-left'"></i>
+                </button>
+            </div>
 
-        <div class="container-fluid px-4">
-            <!-- 标签页 -->
-            <ul class="nav nav-tabs justify-content-center mb-4">
-                <li class="nav-item">
-                    <button class="nav-link" :class="{active: activeTab === 'map'}" @click="activeTab = 'map'">
-                        🗺发射地图
-                    </button>
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <a class="menu-link" :class="{active: currentPage === 'overview'}" @click="currentPage = 'overview'">
+                        <i class="bi bi-speedometer2 menu-icon"></i>
+                        <span class="menu-text">数据概览</span>
+                    </a>
                 </li>
-                <li class="nav-item">
-                    <button class="nav-link" :class="{active: activeTab === 'stats'}" @click="activeTab = 'stats'">
-                        数据分析
-                    </button>
+                <li class="menu-item">
+                    <a class="menu-link" :class="{active: currentPage === 'map'}" @click="currentPage = 'map'">
+                        <i class="bi bi-globe menu-icon"></i>
+                        <span class="menu-text">发射地图</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" :class="{active: currentPage === 'charts'}" @click="currentPage = 'charts'">
+                        <i class="bi bi-bar-chart-fill menu-icon"></i>
+                        <span class="menu-text">数据图表</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" :class="{active: currentPage === 'table'}" @click="currentPage = 'table'">
+                        <i class="bi bi-table menu-icon"></i>
+                        <span class="menu-text">数据表格</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" :class="{active: currentPage === 'compare'}" @click="currentPage = 'compare'">
+                        <i class="bi bi-arrow-left-right menu-icon"></i>
+                        <span class="menu-text">对比分析</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a class="menu-link" :class="{active: currentPage === 'timeline'}" @click="currentPage = 'timeline'">
+                        <i class="bi bi-clock-history menu-icon"></i>
+                        <span class="menu-text">历史时间线</span>
+                    </a>
                 </li>
             </ul>
+        </div>
 
-            <!-- 地图视图 -->
-            <div v-show="activeTab === 'map'" class="row">
-                <div class="col-12">
-                    <div class="card p-4">
-                        <h2 class="mb-4">全球发射场地分布</h2>
-                        <div class="map-container">
-                            <!-- 使用真实地球图片 -->
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Equirectangular_projection_SW.jpg/1280px-Equirectangular_projection_SW.jpg"
-                                 style="width: 100%; height: 100%; object-fit: cover; opacity: 0.6;"
-                                 alt="世界地图">
+        <!-- 主内容区 -->
+        <div class="main-content" :class="{expanded: sidebarCollapsed}">
+            <!-- 顶部栏 -->
+            <div class="top-bar">
+                <div>
+                    <h1 class="page-title">{{ pageTitle }}</h1>
+                    <p class="text-muted">{{ pageSubtitle }}</p>
+                </div>
+                <div class="top-stats">
+                    <div class="top-stat-item">
+                        <div class="top-stat-value">{{ launchData.length }}</div>
+                        <div class="top-stat-label">总记录</div>
+                    </div>
+                    <div class="top-stat-item">
+                        <div class="top-stat-value">{{ filteredData.length }}</div>
+                        <div class="top-stat-label">筛选后</div>
+                    </div>
+                    <div class="top-stat-item">
+                        <div class="top-stat-value">{{ stats.successRate }}%</div>
+                        <div class="top-stat-label">成功率</div>
+                    </div>
+                </div>
+            </div>
 
-                            <!-- 发射场标记 -->
-                            <div v-for="(loc, idx) in launchLocations" :key="idx"
-                                 class="marker"
-                                 :class="getMarkerClass(loc.country)"
-                                 :style="{
-                                     left: projectToMap(loc.lon, loc.lat).x + '%',
-                                     top: projectToMap(loc.lon, loc.lat).y + '%'
-                                 }"
-                                 :title="loc.name + ' (' + loc.launches.length + '次)'"
-                                 @click="selectLocation(loc)">
-                            </div>
+            <!-- 数据概览页 -->
+            <div v-show="currentPage === 'overview'">
+                <!-- 统计卡片 -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <h3><i class="bi bi-rocket-takeoff"></i> 总发射次数</h3>
+                            <div class="value">{{ stats.totalLaunches }}</div>
                         </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <h3><i class="bi bi-check-circle"></i> 成功率</h3>
+                            <div class="value">{{ stats.successRate }}%</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                            <h3><i class="bi bi-cash-coin"></i> 总成本</h3>
+                            <div class="value">${{ stats.totalCost }}M</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <h3><i class="bi bi-graph-up"></i> 平均成本</h3>
+                            <div class="value">${{ stats.avgCost }}M</div>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- 发射场详情 -->
-                        <div v-if="selectedLocation" class="mt-4 p-4"
-                             style="background: rgba(17, 24, 39, 0.8); border-radius: 15px; max-height: 400px; overflow-y: auto;">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="text-info">{{ selectedLocation }}</h3>
-                                <button class="btn btn-sm btn-secondary" @click="selectedLocation = null">关闭</button>
-                            </div>
-                            <div v-for="(launch, idx) in getLocationLaunches(selectedLocation).slice(0, 15)"
-                                 :key="idx" class="launch-item">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div class="flex-grow-1">
-                                        <p class="mb-1 fw-bold text-info">{{ launch.Detail }}</p>
-                                        <small class="text-muted">
-                                            {{ launch.Organisation }} • {{ formatDate(launch.Date) }}
-                                        </small>
-                                    </div>
-                                    <div class="text-end ms-3">
-                                        <p v-if="launch.Price > 0" class="mb-1 text-success fw-bold">
-                                            ${{ launch.Price }}M
-                                        </p>
-                                        <span class="badge"
-                                              :class="launch.Mission_Status === 'Success' ? 'badge-success' : 'badge-danger'">
-                                            {{ launch.Mission_Status }}
-                                        </span>
-                                    </div>
+                <!-- 快速统计 -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h3 class="mb-3"><i class="bi bi-building"></i> 发射组织统计</h3>
+                            <div id="overview-org-chart" style="height: 300px;"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4">
+                            <h3 class="mb-3"><i class="bi bi-calendar-check"></i> 年度发射趋势</h3>
+                            <div id="overview-trend-chart" style="height: 300px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 地图页 -->
+            <div v-show="currentPage === 'map'">
+                <div class="card p-4">
+                    <h2 class="mb-4"><i class="bi bi-geo-alt-fill"></i> 全球发射场地分布</h2>
+                    <div class="map-container">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Equirectangular_projection_SW.jpg/1280px-Equirectangular_projection_SW.jpg"
+                             style="width: 100%; height: 100%; object-fit: cover; opacity: 0.6;"
+                             alt="世界地图">
+
+                        <div v-for="(loc, idx) in launchLocations" :key="idx"
+                             class="marker"
+                             :class="getMarkerClass(loc.country)"
+                             :style="{
+                                 left: projectToMap(loc.lon, loc.lat).x + '%',
+                                 top: projectToMap(loc.lon, loc.lat).y + '%'
+                             }"
+                             :title="loc.name + ' (' + loc.launches.length + '次)'"
+                             @click="selectLocation(loc)">
+                        </div>
+                    </div>
+
+                    <div v-if="selectedLocation" class="mt-4 p-4"
+                         style="background: rgba(17, 24, 39, 0.8); border-radius: 15px; max-height: 400px; overflow-y: auto;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="text-info"><i class="bi bi-pin-map"></i> {{ selectedLocation }}</h3>
+                            <button class="btn btn-sm btn-secondary" @click="selectedLocation = null">
+                                <i class="bi bi-x-lg"></i> 关闭
+                            </button>
+                        </div>
+                        <div v-for="(launch, idx) in getLocationLaunches(selectedLocation).slice(0, 15)"
+                             :key="idx"
+                             style="background: rgba(55, 65, 81, 0.6); padding: 15px; border-radius: 10px; margin-bottom: 10px;">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="mb-1 fw-bold text-info">{{ launch.Detail }}</p>
+                                    <small class="text-muted">{{ launch.Organisation }} • {{ formatDate(launch.Date) }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <p v-if="launch.Price > 0" class="mb-1 text-success fw-bold">${{ launch.Price }}M</p>
+                                    <span class="badge" :class="getMissionBadge(launch.Mission_Status)">
+                                        {{ launch.Mission_Status }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -214,32 +597,29 @@
                 </div>
             </div>
 
-            <!-- 统计视图 -->
-            <div v-show="activeTab === 'stats'">
+            <!-- 图表页 -->
+            <div v-show="currentPage === 'charts'">
                 <!-- 筛选器 -->
                 <div class="card p-4 mb-4">
-                    <h3 class="mb-3">数据筛选</h3>
+                    <h3 class="mb-3"><i class="bi bi-funnel"></i> 数据筛选</h3>
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label">组织</label>
-                            <select class="form-select" v-model="filterOrg"
-                                    style="background: rgba(55, 65, 81, 0.8); color: white; border-color: rgba(148, 163, 184, 0.3);">
+                            <select class="form-select" v-model="filterOrg" style="background: rgba(55, 65, 81, 0.8); color: white;">
                                 <option value="all">全部组织</option>
                                 <option v-for="org in organizations" :key="org" :value="org">{{ org }}</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">年份</label>
-                            <select class="form-select" v-model="filterYear"
-                                    style="background: rgba(55, 65, 81, 0.8); color: white; border-color: rgba(148, 163, 184, 0.3);">
+                            <select class="form-select" v-model="filterYear" style="background: rgba(55, 65, 81, 0.8); color: white;">
                                 <option value="all">全部年份</option>
                                 <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">任务状态</label>
-                            <select class="form-select" v-model="filterStatus"
-                                    style="background: rgba(55, 65, 81, 0.8); color: white; border-color: rgba(148, 163, 184, 0.3);">
+                            <select class="form-select" v-model="filterStatus" style="background: rgba(55, 65, 81, 0.8); color: white;">
                                 <option value="all">全部状态</option>
                                 <option value="Success">成功</option>
                                 <option value="Failure">失败</option>
@@ -249,98 +629,246 @@
                     </div>
                 </div>
 
-                <!-- 统计卡片 -->
-                <div class="row g-4 mb-4">
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <h3>总发射次数</h3>
-                            <div class="value">{{ stats.totalLaunches }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #059669);">
-                            <h3>成功率</h3>
-                            <div class="value">{{ stats.successRate }}%</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
-                            <h3>总成本</h3>
-                            <div class="value">${{ stats.totalCost }}M</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
-                            <h3>平均成本</h3>
-                            <div class="value">${{ stats.avgCost }}M</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 图表区域 -->
+                <!-- 图表网格 -->
                 <div class="row">
-                    <!-- 折线图：年度发射趋势 -->
                     <div class="col-md-6 mb-4">
                         <div class="card p-4">
-                            <h3 class="mb-3">年度发射趋势</h3>
+                            <h3 class="mb-3"><i class="bi bi-graph-up-arrow"></i> 年度发射趋势</h3>
                             <div id="trend-chart" style="height: 350px;"></div>
                         </div>
                     </div>
-
-                    <!-- 柱状图：组织发射次数对比 -->
                     <div class="col-md-6 mb-4">
                         <div class="card p-4">
-                            <h3 class="mb-3">TOP10 组织发射次数</h3>
+                            <h3 class="mb-3"><i class="bi bi-bar-chart"></i> TOP10 组织</h3>
                             <div id="org-bar-chart" style="height: 350px;"></div>
                         </div>
                     </div>
-
-                    <!-- 饼图：任务状态分布 -->
                     <div class="col-md-6 mb-4">
                         <div class="card p-4">
-                            <h3 class="mb-3">任务状态分布</h3>
+                            <h3 class="mb-3"><i class="bi bi-pie-chart"></i> 任务状态分布</h3>
                             <div id="status-pie-chart" style="height: 350px;"></div>
                         </div>
                     </div>
-
-                    <!-- 柱状图：各国发射次数 -->
                     <div class="col-md-6 mb-4">
                         <div class="card p-4">
-                            <h3 class="mb-3">各国发射次数对比</h3>
+                            <h3 class="mb-3"><i class="bi bi-globe2"></i> 各国发射次数</h3>
                             <div id="country-bar-chart" style="height: 350px;"></div>
                         </div>
                     </div>
-
-                    <!-- 面积图：成本趋势 -->
                     <div class="col-md-12 mb-4">
                         <div class="card p-4">
-                            <h3 class="mb-3">年度发射成本趋势</h3>
+                            <h3 class="mb-3"><i class="bi bi-currency-dollar"></i> 年度成本趋势</h3>
                             <div id="cost-trend-chart" style="height: 350px;"></div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 组织排行榜 -->
+            <!-- 数据表格页 -->
+            <div v-show="currentPage === 'table'">
+                <div class="card p-4">
+                    <h2 class="mb-4"><i class="bi bi-table"></i> 发射记录详情</h2>
+
+                    <!-- 搜索框 -->
+                    <div class="search-box">
+                        <input type="text" v-model="searchQuery" placeholder="搜索组织、任务、地点...">
+                        <i class="bi bi-search"></i>
+                    </div>
+
+                    <!-- 数据表格 -->
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>组织</th>
+                                    <th>任务详情</th>
+                                    <th>发射地点</th>
+                                    <th>成本</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(launch, idx) in paginatedData" :key="idx">
+                                    <td>{{ formatDate(launch.Date) }}</td>
+                                    <td><strong>{{ launch.Organisation }}</strong></td>
+                                    <td>{{ launch.Detail }}</td>
+                                    <td><small>{{ launch.Location }}</small></td>
+                                    <td>{{ launch.Price > 0 ? '$' + launch.Price + 'M' : '-' }}</td>
+                                    <td>
+                                        <span class="badge" :class="getMissionBadge(launch.Mission_Status)">
+                                            {{ launch.Mission_Status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div>显示 {{ (currentTablePage - 1) * itemsPerPage + 1 }} - {{ Math.min(currentTablePage * itemsPerPage, searchedData.length) }} / 共 {{ searchedData.length }} 条</div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    @click="currentTablePage = Math.min(totalPages, currentTablePage + 1)"
+                                    :disabled="currentTablePage === totalPages">
+                                下一页 <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 对比分析页 -->
+            <div v-show="currentPage === 'compare'">
                 <div class="card p-4 mb-4">
-                    <h3 class="mb-4">🏆 发射组织排行榜</h3>
-                    <div v-for="(org, idx) in orgStats.slice(0, 10)" :key="idx" class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-bold">#{{ idx + 1 }} {{ org.org }}</span>
-                            <div class="text-end" style="font-size: 0.9rem;">
-                                <span class="text-info fw-bold">{{ org.count }}次</span>
-                                <span class="text-muted mx-2">•</span>
-                                <span class="text-success">{{ org.successRate }}%</span>
-                                <span class="text-muted mx-2">•</span>
-                                <span class="text-warning">${{ org.cost.toFixed(1) }}M</span>
+                    <h2 class="mb-4"><i class="bi bi-arrow-left-right"></i> 组织对比分析</h2>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">选择组织 A</label>
+                            <select class="form-select" v-model="compareOrgA" style="background: rgba(55, 65, 81, 0.8); color: white;">
+                                <option value="">-- 请选择 --</option>
+                                <option v-for="org in organizations" :key="org" :value="org">{{ org }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">选择组织 B</label>
+                            <select class="form-select" v-model="compareOrgB" style="background: rgba(55, 65, 81, 0.8); color: white;">
+                                <option value="">-- 请选择 --</option>
+                                <option v-for="org in organizations" :key="org" :value="org">{{ org }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div v-if="compareOrgA && compareOrgB">
+                        <h4 class="mb-3">对比结果</h4>
+
+                        <!-- 发射次数对比 -->
+                        <div class="comparison-card">
+                            <div style="flex: 1;">
+                                <strong>发射次数</strong>
+                                <div class="comparison-bar">
+                                    <div class="comparison-fill" :style="{width: getComparePercentage('count', 'A') + '%'}">
+                                        <span>{{ getCompareData(compareOrgA).count }}</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ compareOrgA }}</small>
                             </div>
                         </div>
-                        <div class="progress" style="height: 25px; background: rgba(55, 65, 81, 0.6);">
-                            <div class="progress-bar"
-                                 :style="{width: (org.count / orgStats[0].count * 100) + '%',
-                                         background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)'}"
-                                 role="progressbar">
+                        <div class="comparison-card">
+                            <div style="flex: 1;">
+                                <div class="comparison-bar">
+                                    <div class="comparison-fill" :style="{width: getComparePercentage('count', 'B') + '%', background: 'linear-gradient(90deg, #ef4444, #dc2626)'}">
+                                        <span>{{ getCompareData(compareOrgB).count }}</span>
+                                    </div>
+                                </div>
+                                <small class="text-muted">{{ compareOrgB }}</small>
                             </div>
                         </div>
+
+                        <!-- 成功率对比 -->
+                        <h5 class="mt-4 mb-3">成功率对比</h5>
+                        <div class="comparison-card">
+                            <div style="flex: 1;">
+                                <strong>{{ compareOrgA }}</strong>
+                                <div class="comparison-bar">
+                                    <div class="comparison-fill" :style="{width: getCompareData(compareOrgA).successRate + '%'}">
+                                        <span>{{ getCompareData(compareOrgA).successRate }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-card">
+                            <div style="flex: 1;">
+                                <strong>{{ compareOrgB }}</strong>
+                                <div class="comparison-bar">
+                                    <div class="comparison-fill" :style="{width: getCompareData(compareOrgB).successRate + '%', background: 'linear-gradient(90deg, #ef4444, #dc2626)'}">
+                                        <span>{{ getCompareData(compareOrgB).successRate }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 总成本对比 -->
+                        <h5 class="mt-4 mb-3">总成本对比</h5>
+                        <div class="comparison-card">
+                            <div style="flex: 1;">
+                                <strong>{{ compareOrgA }}</strong>
+                                <div class="comparison-bar">
+                                    <div class="comparison-fill" :style="{width: getComparePercentage('cost', 'A') + '%'}">
+                                        <span>${{ getCompareData(compareOrgA).cost.toFixed(1) }}M</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comparison-card">
+                            <div style="flex: 1;">
+                                <strong>{{ compareOrgB }}</strong>
+                                <div class="comparison-bar">
+                                    <div class="comparison-fill" :style="{width: getComparePercentage('cost', 'B') + '%', background: 'linear-gradient(90deg, #ef4444, #dc2626)'}">
+                                        <span>${{ getCompareData(compareOrgB).cost.toFixed(1) }}M</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else class="text-center text-muted py-5">
+                        <i class="bi bi-info-circle" style="font-size: 3rem;"></i>
+                        <p class="mt-3">请选择两个组织进行对比</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史时间线页 -->
+            <div v-show="currentPage === 'timeline'">
+                <div class="card p-4">
+                    <h2 class="mb-4"><i class="bi bi-clock-history"></i> 发射历史时间线</h2>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">选择年份</label>
+                            <select class="form-select" v-model="timelineYear" style="background: rgba(55, 65, 81, 0.8); color: white;">
+                                <option value="">全部年份</option>
+                                <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="timeline">
+                        <div v-for="(launch, idx) in timelineData.slice(0, 50)" :key="idx" class="timeline-item">
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="text-info">{{ launch.Detail }}</h5>
+                                        <p class="mb-1">
+                                            <i class="bi bi-building"></i> {{ launch.Organisation }}
+                                        </p>
+                                        <p class="mb-1">
+                                            <i class="bi bi-geo-alt"></i> {{ launch.Location }}
+                                        </p>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar"></i> {{ formatDate(launch.Date) }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <p v-if="launch.Price > 0" class="mb-2 text-success">
+                                            <strong>${{ launch.Price }}M</strong>
+                                        </p>
+                                        <span class="badge" :class="getMissionBadge(launch.Mission_Status)">
+                                            {{ launch.Mission_Status }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="timelineData.length > 50" class="text-center mt-4">
+                        <button class="btn btn-outline-primary">
+                            加载更多 <i class="bi bi-arrow-down"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -359,43 +887,71 @@
                 return {
                     loading: true,
                     launchData: [],
-                    activeTab: 'map',
+                    currentPage: 'overview',
+                    sidebarCollapsed: false,
                     selectedLocation: null,
                     filterOrg: 'all',
                     filterYear: 'all',
                     filterStatus: 'all',
+                    searchQuery: '',
+                    currentTablePage: 1,
+                    itemsPerPage: 20,
+                    compareOrgA: '',
+                    compareOrgB: '',
+                    timelineYear: '',
                     charts: {}
                 }
             },
             computed: {
+                pageTitle() {
+                    const titles = {
+                        overview: ' 数据概览',
+                        map: '发射地图',
+                        charts: ' 数据图表',
+                        table: ' 数据表格',
+                        compare: '️ 对比分析',
+                        timeline: '历史时间线'
+                    };
+                    return titles[this.currentPage] || '数据可视化';
+                },
+                pageSubtitle() {
+                    const subtitles = {
+                        overview: '查看关键统计指标和快速洞察',
+                        map: '全球发射场地理位置分布',
+                        charts: '多维度数据图表分析',
+                        table: '详细发射记录查询',
+                        compare: '组织间多指标对比',
+                        timeline: '按时间顺序浏览发射历史'
+                    };
+                    return subtitles[this.currentPage] || '';
+                },
                 launchLocations() {
                     const locationMap = new Map();
                     const coordMap = {
-                        'Kennedy Space Center': { lat: 28.5, lon: -80.6, country: 'USA', color: '#3b82f6' },
-                        'Cape Canaveral': { lat: 28.4, lon: -80.6, country: 'USA', color: '#3b82f6' },
-                        'Vandenberg': { lat: 34.7, lon: -120.5, country: 'USA', color: '#3b82f6' },
-                        'Boca Chica': { lat: 26.0, lon: -97.2, country: 'USA', color: '#3b82f6' },
-                        'Wallops': { lat: 37.8, lon: -75.5, country: 'USA', color: '#3b82f6' },
-                        'West Texas': { lat: 31.5, lon: -104.5, country: 'USA', color: '#3b82f6' },
-                        'Jiuquan': { lat: 40.6, lon: 100.3, country: 'China', color: '#ef4444' },
-                        'Xichang': { lat: 28.2, lon: 102.0, country: 'China', color: '#ef4444' },
-                        'Taiyuan': { lat: 38.8, lon: 111.6, country: 'China', color: '#ef4444' },
-                        'Wenchang': { lat: 19.6, lon: 110.9, country: 'China', color: '#ef4444' },
-                        'Baikonur': { lat: 45.9, lon: 63.3, country: 'Kazakhstan', color: '#a855f7' },
-                        'Plesetsk': { lat: 62.9, lon: 40.5, country: 'Russia', color: '#a855f7' },
-                        'Vostochny': { lat: 51.8, lon: 128.3, country: 'Russia', color: '#a855f7' },
-                        'Guiana Space Centre': { lat: 5.2, lon: -52.8, country: 'French Guiana', color: '#10b981' },
-                        'Tanegashima': { lat: 30.4, lon: 130.9, country: 'Japan', color: '#f59e0b' },
-                        'Satish Dhawan': { lat: 13.7, lon: 80.2, country: 'India', color: '#ec4899' },
-                        'Palmachim': { lat: 31.9, lon: 34.7, country: 'Israel', color: '#14b8a6' },
-                        'Māhia Peninsula': { lat: -39.3, lon: 177.9, country: 'New Zealand', color: '#8b5cf6' },
-                        'Sohae': { lat: 39.7, lon: 124.7, country: 'North Korea', color: '#6366f1' }
+                        'Kennedy Space Center': { lat: 28.5, lon: -80.6, country: 'USA' },
+                        'Cape Canaveral': { lat: 28.4, lon: -80.6, country: 'USA' },
+                        'Vandenberg': { lat: 34.7, lon: -120.5, country: 'USA' },
+                        'Boca Chica': { lat: 26.0, lon: -97.2, country: 'USA' },
+                        'Wallops': { lat: 37.8, lon: -75.5, country: 'USA' },
+                        'West Texas': { lat: 31.5, lon: -104.5, country: 'USA' },
+                        'Jiuquan': { lat: 40.6, lon: 100.3, country: 'China' },
+                        'Xichang': { lat: 28.2, lon: 102.0, country: 'China' },
+                        'Taiyuan': { lat: 38.8, lon: 111.6, country: 'China' },
+                        'Wenchang': { lat: 19.6, lon: 110.9, country: 'China' },
+                        'Baikonur': { lat: 45.9, lon: 63.3, country: 'Kazakhstan' },
+                        'Plesetsk': { lat: 62.9, lon: 40.5, country: 'Russia' },
+                        'Vostochny': { lat: 51.8, lon: 128.3, country: 'Russia' },
+                        'Guiana Space Centre': { lat: 5.2, lon: -52.8, country: 'French Guiana' },
+                        'Tanegashima': { lat: 30.4, lon: 130.9, country: 'Japan' },
+                        'Satish Dhawan': { lat: 13.7, lon: 80.2, country: 'India' },
+                        'Palmachim': { lat: 31.9, lon: 34.7, country: 'Israel' },
+                        'Māhia Peninsula': { lat: -39.3, lon: 177.9, country: 'New Zealand' },
+                        'Sohae': { lat: 39.7, lon: 124.7, country: 'North Korea' }
                     };
 
                     this.launchData.forEach(launch => {
                         const loc = launch.Location;
                         if (!loc) return;
-
                         for (const [key, value] of Object.entries(coordMap)) {
                             if (loc.includes(key)) {
                                 if (!locationMap.has(key)) {
@@ -406,18 +962,16 @@
                             }
                         }
                     });
-
                     return Array.from(locationMap.values());
                 },
                 organizations() {
                     return [...new Set(this.launchData.map(d => d.Organisation))].sort();
                 },
                 years() {
-                    const years = [...new Set(this.launchData.map(d => {
+                    return [...new Set(this.launchData.map(d => {
                         const year = new Date(d.Date).getFullYear();
                         return isNaN(year) ? null : year;
                     }).filter(y => y))].sort((a, b) => b - a);
-                    return years;
                 },
                 filteredData() {
                     return this.launchData.filter(d => {
@@ -430,12 +984,34 @@
                         return true;
                     });
                 },
+                searchedData() {
+                    if (!this.searchQuery) return this.filteredData;
+                    const query = this.searchQuery.toLowerCase();
+                    return this.filteredData.filter(d =>
+                        d.Organisation?.toLowerCase().includes(query) ||
+                        d.Detail?.toLowerCase().includes(query) ||
+                        d.Location?.toLowerCase().includes(query)
+                    );
+                },
+                paginatedData() {
+                    const start = (this.currentTablePage - 1) * this.itemsPerPage;
+                    return this.searchedData.slice(start, start + this.itemsPerPage);
+                },
+                totalPages() {
+                    return Math.ceil(this.searchedData.length / this.itemsPerPage);
+                },
+                timelineData() {
+                    let data = this.launchData;
+                    if (this.timelineYear) {
+                        data = data.filter(d => new Date(d.Date).getFullYear() === parseInt(this.timelineYear));
+                    }
+                    return data.sort((a, b) => new Date(b.Date) - new Date(a.Date));
+                },
                 stats() {
                     const total = this.filteredData.length;
                     const success = this.filteredData.filter(d => d.Mission_Status === 'Success').length;
                     const validPrices = this.filteredData.filter(d => Number(d.Price) > 0);
                     const totalCost = validPrices.reduce((sum, d) => sum + Number(d.Price), 0);
-
                     return {
                         totalLaunches: total,
                         successRate: total > 0 ? ((success / total) * 100).toFixed(1) : "0.0",
@@ -453,15 +1029,12 @@
                         stats[d.Organisation].cost += Number(d.Price) || 0;
                         if (d.Mission_Status === 'Success') stats[d.Organisation].success++;
                     });
-
-                    return Object.entries(stats)
-                        .map(([org, data]) => ({
-                            org,
-                            count: data.count,
-                            cost: data.cost,
-                            successRate: ((data.success / data.count) * 100).toFixed(1)
-                        }))
-                        .sort((a, b) => b.count - a.count);
+                    return Object.entries(stats).map(([org, data]) => ({
+                        org,
+                        count: data.count,
+                        cost: data.cost,
+                        successRate: ((data.success / data.count) * 100).toFixed(1)
+                    })).sort((a, b) => b.count - a.count);
                 },
                 yearStats() {
                     const stats = {};
@@ -473,10 +1046,11 @@
                             stats[year].cost += Number(d.Price) || 0;
                         }
                     });
-
-                    return Object.entries(stats)
-                        .map(([year, data]) => ({ year: parseInt(year), count: data.count, cost: data.cost }))
-                        .sort((a, b) => a.year - b.year);
+                    return Object.entries(stats).map(([year, data]) => ({
+                        year: parseInt(year),
+                        count: data.count,
+                        cost: data.cost
+                    })).sort((a, b) => a.year - b.year);
                 }
             },
             methods: {
@@ -486,21 +1060,15 @@
                         const result = await response.json();
                         if (result.success) {
                             this.launchData = result.data;
-                        } else {
-                            alert('数据加载失败: ' + result.error);
                         }
                     } catch (error) {
-                        console.error('加载数据失败:', error);
-                        alert('无法连接到服务器');
+                        console.error('加载失败:', error);
                     } finally {
                         this.loading = false;
                     }
                 },
                 projectToMap(lon, lat) {
-                    return {
-                        x: ((lon + 180) / 360) * 100,
-                        y: ((90 - lat) / 180) * 100
-                    };
+                    return { x: ((lon + 180) / 360) * 100, y: ((90 - lat) / 180) * 100 };
                 },
                 getMarkerClass(country) {
                     if (country === 'USA') return 'usa';
@@ -511,6 +1079,11 @@
                     if (country === 'India') return 'india';
                     return 'other';
                 },
+                getMissionBadge(status) {
+                    if (status === 'Success') return 'badge-success';
+                    if (status === 'Failure') return 'badge-danger';
+                    return 'badge-warning';
+                },
                 selectLocation(loc) {
                     this.selectedLocation = this.selectedLocation === loc.name ? null : loc.name;
                 },
@@ -519,182 +1092,293 @@
                     return loc ? loc.launches : [];
                 },
                 formatDate(dateStr) {
-                    if (!dateStr) return '未知日期';
+                    if (!dateStr) return '未知';
                     try {
                         return new Date(dateStr).toLocaleDateString('zh-CN');
                     } catch {
                         return dateStr;
                     }
                 },
-                initCharts() {
+                getCompareData(org) {
+                    const data = this.launchData.filter(d => d.Organisation === org);
+                    const success = data.filter(d => d.Mission_Status === 'Success').length;
+                    const cost = data.reduce((sum, d) => sum + Number(d.Price || 0), 0);
+                    return {
+                        count: data.length,
+                        successRate: data.length > 0 ? ((success / data.length) * 100).toFixed(1) : 0,
+                        cost: cost
+                    };
+                },
+                getComparePercentage(type, org) {
+                    const dataA = this.getCompareData(this.compareOrgA);
+                    const dataB = this.getCompareData(this.compareOrgB);
+                    const max = Math.max(dataA[type], dataB[type]);
+                    const current = org === 'A' ? dataA[type] : dataB[type];
+                    return max > 0 ? (current / max * 100) : 0;
+                },
+                initOverviewCharts() {
                     this.$nextTick(() => {
-                        this.initTrendChart();
-                        this.initOrgBarChart();
-                        this.initStatusPieChart();
-                        this.initCountryBarChart();
-                        this.initCostTrendChart();
+                        const orgChart = echarts.init(document.getElementById('overview-org-chart'));
+                        const top5 = this.orgStats.slice(0, 5);
+                        orgChart.setOption({
+                            tooltip: { trigger: 'item' },
+                            series: [{
+                                type: 'pie',
+                                radius: '70%',
+                                data: top5.map(d => ({ name: d.org, value: d.count })),
+                                label: { color: '#fff' }
+                            }]
+                        });
+
+                        const trendChart = echarts.init(document.getElementById('overview-trend-chart'));
+                        trendChart.setOption({
+                            tooltip: { trigger: 'axis' },
+                            xAxis: { type: 'category', data: this.yearStats.map(d => d.year), axisLabel: { color: '#fff' } },
+                            yAxis: { type: 'value', axisLabel: { color: '#fff' } },
+                            series: [{
+                                data: this.yearStats.map(d => d.count),
+                                type: 'line',
+                                smooth: true,
+                                areaStyle: {},
+                                lineStyle: { color: '#3b82f6' }
+                            }]
+                        });
+                        this.charts.overviewOrg = orgChart;
+                        this.charts.overviewTrend = trendChart;
                     });
                 },
-                initTrendChart() {
-                    const dom = document.getElementById('trend-chart');
-                    if (!dom) return;
-                    const chart = echarts.init(dom);
-                    this.charts.trend = chart;
-
-                    const years = this.yearStats.map(d => d.year);
-                    const counts = this.yearStats.map(d => d.count);
-
-                    chart.setOption({
-                        tooltip: { trigger: 'axis' },
-                        xAxis: { type: 'category', data: years, axisLabel: { color: '#fff' } },
-                        yAxis: { type: 'value', axisLabel: { color: '#fff' } },
-                        series: [{
-                            data: counts,
-                            type: 'line',
-                            smooth: true,
-                            lineStyle: { color: '#3b82f6', width: 3 },
-                            areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(59, 130, 246, 0.5)' }, { offset: 1, color: 'rgba(59, 130, 246, 0)' }] } }
-                        }]
-                    });
-                },
-                initOrgBarChart() {
-                    const dom = document.getElementById('org-bar-chart');
-                    if (!dom) return;
-                    const chart = echarts.init(dom);
-                    this.charts.orgBar = chart;
-
-                    const top10 = this.orgStats.slice(0, 10);
-                    chart.setOption({
-                        tooltip: { trigger: 'axis' },
-                        xAxis: { type: 'value', axisLabel: { color: '#fff' } },
-                        yAxis: { type: 'category', data: top10.map(d => d.org), axisLabel: { color: '#fff' } },
-                        series: [{
-                            data: top10.map(d => d.count),
-                            type: 'bar',
-                            itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{ offset: 0, color: '#3b82f6' }, { offset: 1, color: '#8b5cf6' }]) }
-                        }]
-                    });
-                },
-                initStatusPieChart() {
-                    const dom = document.getElementById('status-pie-chart');
-                    if (!dom) return;
-                    const chart = echarts.init(dom);
-                    this.charts.statusPie = chart;
-
-                    const statusCount = {};
-                    this.filteredData.forEach(d => {
-                        const status = d.Mission_Status || 'Unknown';
-                        statusCount[status] = (statusCount[status] || 0) + 1;
-                    });
-
-                    const pieData = Object.entries(statusCount).map(([name, value]) => ({ name, value }));
-
-                    chart.setOption({
-                        tooltip: { trigger: 'item' },
-                        legend: { textStyle: { color: '#fff' }, bottom: '5%' },
-                        series: [{
-                            type: 'pie',
-                            radius: ['40%', '70%'],
-                            avoidLabelOverlap: false,
-                            itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-                            label: { show: false },
-                            emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' } },
-                            data: pieData,
-                            color: ['#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#3b82f6']
-                        }]
-                    });
-                },
-                initCountryBarChart() {
-                    const dom = document.getElementById('country-bar-chart');
-                    if (!dom) return;
-                    const chart = echarts.init(dom);
-                    this.charts.countryBar = chart;
-
-                    const countryCount = {};
-                    this.launchLocations.forEach(loc => {
-                        const country = loc.country;
-                        countryCount[country] = (countryCount[country] || 0) + loc.launches.length;
-                    });
-
-                    const sortedCountries = Object.entries(countryCount)
-                        .sort((a, b) => b[1] - a[1])
-                        .slice(0, 10);
-
-                    chart.setOption({
-                        tooltip: { trigger: 'axis' },
-                        xAxis: { type: 'category', data: sortedCountries.map(d => d[0]), axisLabel: { color: '#fff', rotate: 45 } },
-                        yAxis: { type: 'value', axisLabel: { color: '#fff' } },
-                        series: [{
-                            data: sortedCountries.map(d => d[1]),
-                            type: 'bar',
-                            itemStyle: {
-                                color: (params) => {
-                                    const colors = ['#3b82f6', '#ef4444', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#8b5cf6', '#6366f1', '#f97316'];
-                                    return colors[params.dataIndex % colors.length];
+                initAllCharts() {
+                    this.$nextTick(() => {
+                        // 年度发射趋势
+                        const trendChart = echarts.init(document.getElementById('trend-chart'));
+                        const years = this.yearStats.map(d => d.year);
+                        const counts = this.yearStats.map(d => d.count);
+                        trendChart.setOption({
+                            tooltip: { trigger: 'axis' },
+                            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                            xAxis: { type: 'category', data: years, axisLabel: { color: '#fff' } },
+                            yAxis: { type: 'value', axisLabel: { color: '#fff' } },
+                            series: [{
+                                data: counts,
+                                type: 'line',
+                                smooth: true,
+                                lineStyle: { color: '#3b82f6', width: 3 },
+                                areaStyle: {
+                                    color: {
+                                        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                        colorStops: [
+                                            { offset: 0, color: 'rgba(59, 130, 246, 0.5)' },
+                                            { offset: 1, color: 'rgba(59, 130, 246, 0)' }
+                                        ]
+                                    }
                                 }
-                            }
-                        }]
-                    });
-                },
-                initCostTrendChart() {
-                    const dom = document.getElementById('cost-trend-chart');
-                    if (!dom) return;
-                    const chart = echarts.init(dom);
-                    this.charts.costTrend = chart;
+                            }]
+                        });
+                        this.charts.trend = trendChart;
 
-                    const years = this.yearStats.map(d => d.year);
-                    const costs = this.yearStats.map(d => d.cost.toFixed(1));
-
-                    chart.setOption({
-                        tooltip: { trigger: 'axis', formatter: '{b}年: ${c}M' },
-                        xAxis: { type: 'category', data: years, axisLabel: { color: '#fff' } },
-                        yAxis: { type: 'value', axisLabel: { color: '#fff', formatter: '${value}M' } },
-                        series: [{
-                            data: costs,
-                            type: 'line',
-                            smooth: true,
-                            lineStyle: { color: '#f59e0b', width: 3 },
-                            areaStyle: {
-                                color: {
-                                    type: 'linear',
-                                    x: 0,
-                                    y: 0,
-                                    x2: 0,
-                                    y2: 1,
-                                    colorStops: [
-                                        { offset: 0, color: 'rgba(245, 158, 11, 0.5)' },
-                                        { offset: 1, color: 'rgba(245, 158, 11, 0)' }
-                                    ]
+                        // TOP10组织柱状图
+                        const orgBarChart = echarts.init(document.getElementById('org-bar-chart'));
+                        const top10 = this.orgStats.slice(0, 10);
+                        orgBarChart.setOption({
+                            tooltip: { trigger: 'axis' },
+                            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                            xAxis: { type: 'value', axisLabel: { color: '#fff' } },
+                            yAxis: { type: 'category', data: top10.map(d => d.org), axisLabel: { color: '#fff' } },
+                            series: [{
+                                data: top10.map(d => d.count),
+                                type: 'bar',
+                                itemStyle: {
+                                    color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                        { offset: 0, color: '#3b82f6' },
+                                        { offset: 1, color: '#8b5cf6' }
+                                    ])
                                 }
+                            }]
+                        });
+                        this.charts.orgBar = orgBarChart;
+
+                        // 任务状态饼图
+                        const statusPieChart = echarts.init(document.getElementById('status-pie-chart'));
+                        const statusCount = {};
+                        this.filteredData.forEach(d => {
+                            const status = d.Mission_Status || 'Unknown';
+                            statusCount[status] = (statusCount[status] || 0) + 1;
+                        });
+                        const pieData = Object.entries(statusCount).map(([name, value]) => ({ name, value }));
+                        statusPieChart.setOption({
+                            tooltip: { trigger: 'item' },
+                            legend: { textStyle: { color: '#fff' }, bottom: '5%' },
+                            series: [{
+                                type: 'pie',
+                                radius: ['40%', '70%'],
+                                avoidLabelOverlap: false,
+                                itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+                                label: { show: false },
+                                emphasis: { label: { show: true, fontSize: 16, fontWeight: 'bold' } },
+                                data: pieData,
+                                color: ['#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#3b82f6']
+                            }]
+                        });
+                        this.charts.statusPie = statusPieChart;
+
+                        // 各国发射次数柱状图
+                        const countryBarChart = echarts.init(document.getElementById('country-bar-chart'));
+                        const countryCount = {};
+                        this.launchLocations.forEach(loc => {
+                            const country = loc.country;
+                            countryCount[country] = (countryCount[country] || 0) + loc.launches.length;
+                        });
+                        const sortedCountries = Object.entries(countryCount)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 10);
+                        countryBarChart.setOption({
+                            tooltip: { trigger: 'axis' },
+                            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                            xAxis: {
+                                type: 'category',
+                                data: sortedCountries.map(d => d[0]),
+                                axisLabel: { color: '#fff', rotate: 45 }
                             },
-                            itemStyle: { color: '#f59e0b' }
-                        }]
+                            yAxis: { type: 'value', axisLabel: { color: '#fff' } },
+                            series: [{
+                                data: sortedCountries.map(d => d[1]),
+                                type: 'bar',
+                                itemStyle: {
+                                    color: (params) => {
+                                        const colors = ['#3b82f6', '#ef4444', '#a855f7', '#10b981', '#f59e0b', '#ec4899', '#14b8a6', '#8b5cf6', '#6366f1', '#f97316'];
+                                        return colors[params.dataIndex % colors.length];
+                                    }
+                                }
+                            }]
+                        });
+                        this.charts.countryBar = countryBarChart;
+
+                        // 年度成本趋势面积图
+                        const costTrendChart = echarts.init(document.getElementById('cost-trend-chart'));
+                        const costYears = this.yearStats.map(d => d.year);
+                        const costs = this.yearStats.map(d => d.cost.toFixed(1));
+                        costTrendChart.setOption({
+                            tooltip: {
+                                trigger: 'axis',
+                                formatter: '{b}年: ${c}M',
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                borderColor: '#f59e0b'
+                            },
+                            grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                            xAxis: {
+                                type: 'category',
+                                data: costYears,
+                                axisLabel: { color: '#fff' }
+                            },
+                            yAxis: {
+                                type: 'value',
+                                axisLabel: { color: '#fff', formatter: '${value}M' }
+                            },
+                            series: [{
+                                data: costs,
+                                type: 'line',
+                                smooth: true,
+                                lineStyle: { color: '#f59e0b', width: 3 },
+                                areaStyle: {
+                                    color: {
+                                        type: 'linear',
+                                        x: 0,
+                                        y: 0,
+                                        x2: 0,
+                                        y2: 1,
+                                        colorStops: [
+                                            { offset: 0, color: 'rgba(245, 158, 11, 0.5)' },
+                                            { offset: 1, color: 'rgba(245, 158, 11, 0)' }
+                                        ]
+                                    }
+                                },
+                                itemStyle: { color: '#f59e0b' }
+                            }]
+                        });
+                        this.charts.costTrend = costTrendChart;
                     });
                 },
                 updateAllCharts() {
-                    if (this.charts.trend) this.initTrendChart();
-                    if (this.charts.orgBar) this.initOrgBarChart();
-                    if (this.charts.statusPie) this.initStatusPieChart();
-                    if (this.charts.countryBar) this.initCountryBarChart();
-                    if (this.charts.costTrend) this.initCostTrendChart();
+                    // 更新所有图表
+                    if (this.charts.trend) {
+                        const years = this.yearStats.map(d => d.year);
+                        const counts = this.yearStats.map(d => d.count);
+                        this.charts.trend.setOption({
+                            xAxis: { data: years },
+                            series: [{ data: counts }]
+                        });
+                    }
+                    if (this.charts.orgBar) {
+                        const top10 = this.orgStats.slice(0, 10);
+                        this.charts.orgBar.setOption({
+                            yAxis: { data: top10.map(d => d.org) },
+                            series: [{ data: top10.map(d => d.count) }]
+                        });
+                    }
+                    if (this.charts.statusPie) {
+                        const statusCount = {};
+                        this.filteredData.forEach(d => {
+                            const status = d.Mission_Status || 'Unknown';
+                            statusCount[status] = (statusCount[status] || 0) + 1;
+                        });
+                        const pieData = Object.entries(statusCount).map(([name, value]) => ({ name, value }));
+                        this.charts.statusPie.setOption({
+                            series: [{ data: pieData }]
+                        });
+                    }
+                    if (this.charts.countryBar) {
+                        const countryCount = {};
+                        this.launchLocations.forEach(loc => {
+                            countryCount[loc.country] = (countryCount[loc.country] || 0) + loc.launches.length;
+                        });
+                        const sortedCountries = Object.entries(countryCount)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 10);
+                        this.charts.countryBar.setOption({
+                            xAxis: { data: sortedCountries.map(d => d[0]) },
+                            series: [{ data: sortedCountries.map(d => d[1]) }]
+                        });
+                    }
+                    if (this.charts.costTrend) {
+                        const years = this.yearStats.map(d => d.year);
+                        const costs = this.yearStats.map(d => d.cost.toFixed(1));
+                        this.charts.costTrend.setOption({
+                            xAxis: { data: years },
+                            series: [{ data: costs }]
+                        });
+                    }
                 }
             },
             watch: {
-                filteredData() {
-                    if (this.activeTab === 'stats') {
-                        this.$nextTick(() => this.updateAllCharts());
+                currentPage(val) {
+                    if (val === 'overview') {
+                        this.initOverviewCharts();
+                    }
+                    if (val === 'charts') {
+                        this.initAllCharts();
                     }
                 },
-                activeTab(newVal) {
-                    if (newVal === 'stats' && Object.keys(this.charts).length === 0) {
-                        this.initCharts();
+                filteredData() {
+                    if (this.currentPage === 'charts') {
+                        this.$nextTick(() => this.updateAllCharts());
                     }
+                    if (this.currentPage === 'overview') {
+                        this.$nextTick(() => this.initOverviewCharts());
+                    }
+                },
+                searchQuery() {
+                    this.currentTablePage = 1; // 搜索时重置到第一页
                 }
             },
             mounted() {
                 this.loadData();
+                // 窗口大小改变时重绘所有图表
                 window.addEventListener('resize', () => {
-                    Object.values(this.charts).forEach(chart => chart && chart.resize());
+                    Object.values(this.charts).forEach(chart => {
+                        if (chart && chart.resize) {
+                            chart.resize();
+                        }
+                    });
                 });
             }
         }).mount('#app');
